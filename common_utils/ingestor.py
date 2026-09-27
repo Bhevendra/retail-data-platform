@@ -1,31 +1,35 @@
+from pymongo import MongoClient
+from bson import json_util
 
 
-def read_jdbc(spark, url, dbtable, user, password, driver="com.microsoft.sqlserver.jdbc.SQLServerDriver"):
+def read_jdbc(spark,url, dbtable,user, password,  driver="com.microsoft.sqlserver.jdbc.SQLServerDriver"):
     '''
-    Read a table from relational database over JDBC
+    Read a table from a relational database over JDBC
 
-    url         : connection url from source
-    dbtable     : table you want to ingest from source
-    user        : username of relational database
-    password    : password of relational database
-    driver      : driver from source
+    url           :  connection url from source
+    dbtable       :  table you want to ingest from source
+    user          :  username of relational database
+    password      :  paasssword of relational database
+    driver        :  driver from source
     '''
 
-    df = spark.read.format("jdbc") \
-    .option("url",url) \
-    .option("dbtable",dbtable) \
-    .option("user",user)\
-    .option("password",password)\
-    .option("driver", driver)\
-    .load()
+    df = spark.read.format("jdbc")\
+        .option("url", url) \
+        .option("dbtable", dbtable) \
+        .option("user", user) \
+        .option("password", password) \
+        .option("driver", driver) \
+        .load()
 
     return df
 
 
 
-def read_cosmosdb_json(connection_string, database_name, collection_name ):
+
+def read_cosmosdb_json(spark, connection_string, database_name, collection_name, data_type ):
     '''
-    
+
+
     '''
 
     client = MongoClient(connection_string)
@@ -40,11 +44,12 @@ def read_cosmosdb_json(connection_string, database_name, collection_name ):
     return df
 
 
-def read_s3_parquet(aws_access_key_id, aws_secret_access_key, path):
+
+
+def read_s3_parquet(spark, aws_access_key_id, aws_secret_access_key, path):
     '''
-    
-    
-    
+
+
     '''
     source_path = (
         f"s3a://{aws_access_key_id}:{aws_secret_access_key}"
@@ -54,32 +59,11 @@ def read_s3_parquet(aws_access_key_id, aws_secret_access_key, path):
     return df
 
 
-
-def write_raw(df, target_path,file_format, mode, options = None):
-    '''
-    
-    
-    
-    '''
-
+def write_raw(df, target_path, file_format, mode, options = None):
     writer = df.write.mode(mode).format(file_format)
 
     for key, value in (options or {}).items():
-        writer = writer.option(key,value)
+        writer = writer.option(key, value)
 
     writer.save(target_path)
     return target_path
-
-
-
-
-
-
-
-
-
-
-
-
-
-

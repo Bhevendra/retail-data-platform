@@ -1,0 +1,25 @@
+{
+    "s3_sales": {
+        "raw_folder":"s3_sales",
+        "file_format":"parquet",
+        "read_options":{},
+        "target_table":"retaildataplatform.bronze.s3_sales",
+        "mode":"overwrite"
+    },
+
+    "cosmosdb_sales_orders": {
+        "raw_folder":"cosmosdb_sales_orders",
+        "file_format":"json",
+        "read_options":{},
+        "target_table":"retaildataplatform.bronze.cosmosdb_sales_orders",
+        "mode":"overwrite"
+    },
+    "sqlserver_customers": {
+        "raw_folder":"sqlserver_customers",
+        "file_format":"csv",
+        "read_options":{"header":"true", "inferSchema":"true"},
+        "target_table":"retaildataplatform.bronze.sqlserver_customers",
+        "mode":"overwrite"
+    }
+
+}

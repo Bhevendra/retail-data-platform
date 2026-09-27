@@ -11,7 +11,7 @@
 
     "target": {
         "base_path": "/Volumes/retaildataplatform/bronze/raw_data/",
-        "folder":   "test",
+        "folder":   "sqlserver_customers",
         "file_format": "csv",
         "mode": "overwrite"  
         },
