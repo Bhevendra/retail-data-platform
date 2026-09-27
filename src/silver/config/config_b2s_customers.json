@@ -74,7 +74,8 @@
         ]
     },
 
-    "merge": {
+    "scd": {
+        "type": 1,
         "key_columns": [
             "customer_id"
         ]

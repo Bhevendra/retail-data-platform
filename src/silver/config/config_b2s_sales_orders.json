@@ -1,0 +1,139 @@
+{
+    "source": {
+        "source_table": "retaildataplatform.bronze.cosmosdb_sales_orders",
+        "source_name": "cosmosdb_sales_orders"
+    },
+
+    "tables": {
+
+        "sales_orders": {
+            "target_table": "retaildataplatform.silver.sales_orders",
+
+            "rename_columns": {},
+
+            "cast_columns": {
+                "order_number": "long",
+                "customer_id": "long",
+                "customer_name": "string",
+                "number_of_line_items": "long",
+                "order_timestamp": "timestamp"
+            },
+
+            "select_columns": [
+                "order_number",
+                "customer_id",
+                "customer_name",
+                "number_of_line_items",
+                "order_timestamp"
+            ],
+
+            "scd": {
+                "type": 1,
+                "key_columns": [
+                    "order_number"
+                ]
+            }
+        },
+
+        "order_products": {
+            "target_table": "retaildataplatform.silver.order_products",
+
+            "rename_columns": {},
+
+            "cast_columns": {
+                "customer_id": "long",
+                "customer_name": "string",
+                "order_number": "long",
+                "id": "string",
+                "product_name": "string",
+                "price": "double",
+                "curr": "string",
+                "qty": "long",
+                "unit": "string"
+            },
+
+            "select_columns": [
+                "customer_id",
+                "customer_name",
+                "order_number",
+                "id",
+                "product_name",
+                "price",
+                "curr",
+                "qty",
+                "unit"
+            ],
+
+            "scd": {
+                "type": 1,
+                "key_columns": [
+                    "order_number",
+                    "id"
+                ]
+            }
+        },
+
+        "promotions": {
+            "target_table": "retaildataplatform.silver.promotions",
+
+            "rename_columns": {},
+
+            "cast_columns": {
+                "customer_id": "long",
+                "order_number": "long",
+                "promo_id": "string",
+                "promo_product_id": "string",
+                "discount": "double",
+                "promo_quantity": "long"
+            },
+
+            "select_columns": [
+                "customer_id",
+                "order_number",
+                "promo_id",
+                "promo_product_id",
+                "discount",
+                "promo_quantity"
+            ],
+
+            "scd": {
+                "type": 1,
+                "key_columns": [
+                    "order_number",
+                    "promo_id",
+                    "promo_product_id"
+                ]
+            }
+        },
+
+        "clicked_items": {
+            "target_table": "retaildataplatform.silver.clicked_items",
+
+            "rename_columns": {},
+
+            "cast_columns": {
+                "customer_id": "long",
+                "customer_name": "string",
+                "order_number": "long",
+                "product_id": "string",
+                "score": "long"
+            },
+
+            "select_columns": [
+                "customer_id",
+                "customer_name",
+                "order_number",
+                "product_id",
+                "score"
+            ],
+
+            "scd": {
+                "type": 1,
+                "key_columns": [
+                    "order_number",
+                    "product_id"
+                ]
+            }
+        }
+    }
+}
