@@ -1,0 +1,82 @@
+{
+    "source": {
+        "source_table": "retaildataplatform.bronze.sqlserver_customers",
+        "source_name": "sqlserver_customers"
+    },
+
+    "target": {
+        "target_table": "retaildataplatform.silver.customers",
+        "write_mode": "merge"
+    },
+
+    "rename_columns": {},
+
+    "cast_columns": {
+        "customer_id": "long",
+        "tax_id": "string",
+        "tax_code": "string",
+        "city": "string",
+        "postcode": "string",
+        "street": "string",
+        "number": "string",
+        "unit": "string",
+        "region": "string",
+        "district": "string",
+        "lon": "double",
+        "lat": "double",
+        "units_purchased": "long",
+        "loyalty_segment": "string",
+        "last_update_ts": "timestamp"
+    },
+
+    "drop_columns": [
+        "name_parts",
+        "customer_name",
+        "file_path"
+    ],
+
+    "select_columns": [
+        "customer_id",
+        "first_name",
+        "last_name",
+        "tax_id",
+        "tax_code",
+        "country",
+        "state",
+        "city",
+        "postcode",
+        "street",
+        "number",
+        "unit",
+        "region",
+        "district",
+        "lon",
+        "lat",
+        "ship_to_address",
+        "valid_from",
+        "valid_to",
+        "units_purchased",
+        "loyalty_segment",
+        "last_update_ts"
+    ],
+
+    "deduplication": {
+        "enabled": true,
+        "key_columns": [
+            "customer_id"
+        ],
+        "order_by": [
+            {
+                "column": "last_update_ts",
+                "direction": "desc",
+                "nulls": "last"
+            }
+        ]
+    },
+
+    "merge": {
+        "key_columns": [
+            "customer_id"
+        ]
+    }
+}
