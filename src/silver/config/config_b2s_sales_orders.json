@@ -30,7 +30,9 @@
             "scd": {
                 "type": 1,
                 "key_columns": [
-                    "order_number"
+                    "order_number",
+                    "customer_id", 
+                    "number_of_line_items"
                 ]
             }
         },
@@ -68,7 +70,8 @@
                 "type": 1,
                 "key_columns": [
                     "order_number",
-                    "id"
+                    "id",
+                    "price"
                 ]
             }
         },
@@ -99,9 +102,11 @@
             "scd": {
                 "type": 1,
                 "key_columns": [
+                    "customer_id",
                     "order_number",
                     "promo_id",
-                    "promo_product_id"
+                    "promo_product_id",
+                    "promo_quantity"
                 ]
             }
         },
@@ -130,8 +135,10 @@
             "scd": {
                 "type": 1,
                 "key_columns": [
+                    "customer_id",
                     "order_number",
-                    "product_id"
+                    "product_id",
+                    "score"
                 ]
             }
         }
