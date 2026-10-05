@@ -1,0 +1,60 @@
+{
+  "table": "retaildataplatform.gold.dim_order",
+  "layer": "GOLD",
+  "checks": [
+    {
+      "name": "dim_order_not_empty",
+      "type": "min_row_count",
+      "threshold": 1,
+      "severity": "error",
+      "on_failure": "fail"
+    },
+    {
+      "name": "order_number_not_null",
+      "type": "not_null",
+      "column": "order_number",
+      "severity": "error",
+      "on_failure": "fail"
+    },
+    {
+      "name": "order_number_unique",
+      "type": "unique",
+      "columns": [
+        "order_number"
+      ],
+      "severity": "error",
+      "on_failure": "fail"
+    },
+    {
+      "name": "customer_id_not_null",
+      "type": "not_null",
+      "column": "customer_id",
+      "severity": "error",
+      "on_failure": "fail"
+    },
+    {
+      "name": "order_date_key_not_null",
+      "type": "not_null",
+      "column": "order_date_key",
+      "severity": "WARN",
+      "on_failure": "warn"
+    },
+    {
+      "name": "number_of_line_items_range",
+      "type": "range",
+      "column": "number_of_line_items",
+      "min": 1,
+      "severity": "error",
+      "on_failure": "fail"
+    },
+    {
+      "name": "customer_fk_integrity",
+      "type": "referential_integrity",
+      "child_column": "customer_id",
+      "parent_table": "retaildataplatform.gold.dim_customer",
+      "parent_column": "customer_id",
+      "severity": "error",
+      "on_failure": "fail"
+    }
+  ]
+}

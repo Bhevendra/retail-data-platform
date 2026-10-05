@@ -1,8 +1,8 @@
 {
     "source": {
         "source_name": "silver_sales",
-        "source_table": "retaildataplatform.silver.sales",
-        "date_column": "order_date"
+        "source_table": "retaildataplatform.silver.sales_orders",
+        "date_column": "order_timestamp"
     },
 
     "target": {
