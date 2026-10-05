@@ -1,0 +1,460 @@
+resources:
+
+  jobs:
+
+    retail_data_platform:
+
+      name: retail-data-platform-${bundle.target}
+
+      description: >-
+        Daily retail data platform pipeline. SQL Server, CosmosDB and S3 sources
+        are ingested into the raw volume, processed through Bronze and Silver
+        layers, transformed into Gold dimensional and fact tables, and finally
+        validated through data quality checks.
+
+      max_concurrent_runs: 1
+
+      timeout_seconds: 7200
+
+      queue:
+        enabled: true
+
+      tags:
+        application: retail-data-platform
+        environment: ${bundle.target}
+        owner: data-engineering
+
+      # ------------------------------------------------------------
+      # SCHEDULE
+      # ------------------------------------------------------------
+
+      schedule:
+        quartz_cron_expression: "0 0 5 * * ?"
+        timezone_id: UTC
+        pause_status: ${var.schedule_pause_status}
+
+      # ------------------------------------------------------------
+      # EMAIL NOTIFICATIONS
+      # ------------------------------------------------------------
+
+      email_notifications:
+
+        on_failure:
+          - ${var.alert_email}
+
+        on_duration_warning_threshold_exceeded:
+          - ${var.alert_email}
+
+        no_alert_for_skipped_runs: true
+
+      # ------------------------------------------------------------
+      # JOB HEALTH
+      # ------------------------------------------------------------
+
+      health:
+
+        rules:
+
+          - metric: RUN_DURATION_SECONDS
+            op: GREATER_THAN
+            value: 3600
+
+      # ------------------------------------------------------------
+      # JOB PARAMETERS
+      # ------------------------------------------------------------
+
+      parameters:
+
+        - name: run_date
+          default: "{{job.start_time.iso_date}}"
+
+        - name: catalog
+          default: ${var.catalog}
+
+        - name: bronze_schema
+          default: bronze
+
+        - name: silver_schema
+          default: silver
+
+        - name: gold_schema
+          default: gold
+
+        - name: audit_schema
+          default: audit
+
+        - name: raw_volume
+          default: raw_data
+
+        - name: secret_scope
+          default: ${var.secret_scope}
+
+      # ------------------------------------------------------------
+      # SERVERLESS ENVIRONMENT
+      # ------------------------------------------------------------
+
+      environments:
+
+        - environment_key: platform
+
+          spec:
+
+            client: "2"
+
+            dependencies:
+
+              - pymongo==4.10.1
+
+      # ============================================================
+      # TASKS
+      # ============================================================
+
+      tasks:
+
+        # ========================================================
+        # 1. INGESTION
+        # ========================================================
+
+        # --------------------------------------------------------
+        # SQL SERVER
+        # --------------------------------------------------------
+
+        - task_key: ingest_sqlserver
+
+          environment_key: platform
+
+          max_retries: 2
+
+          min_retry_interval_millis: 300000
+
+          notebook_task:
+
+            notebook_path: ../src/ingestion/notebooks/sql-server-ingestion.ipynb
+
+            base_parameters:
+
+              path: src/ingestion/config/config_sqlserver.json
+
+
+        # --------------------------------------------------------
+        # COSMOS DB
+        # --------------------------------------------------------
+
+        - task_key: ingest_cosmosdb
+
+          environment_key: platform
+
+          max_retries: 2
+
+          min_retry_interval_millis: 300000
+
+          notebook_task:
+
+            notebook_path: ../src/ingestion/notebooks/cosmosdb-ingestion.ipynb
+
+            base_parameters:
+
+              path: src/ingestion/config/config_cosmosdb.json
+
+
+        # --------------------------------------------------------
+        # AMAZON S3
+        # --------------------------------------------------------
+
+        - task_key: ingest_s3
+
+          environment_key: platform
+
+          max_retries: 2
+
+          min_retry_interval_millis: 300000
+
+          notebook_task:
+
+            notebook_path: ../src/ingestion/notebooks/s3-ingestion.ipynb
+
+            base_parameters:
+
+              path: src/ingestion/config/config_s3.json
+
+
+        # ========================================================
+        # 2. BRONZE
+        # ========================================================
+
+        - task_key: bronze
+
+          depends_on:
+
+            - task_key: ingest_sqlserver
+
+            - task_key: ingest_cosmosdb
+
+            - task_key: ingest_s3
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/bronze/notebooks/ds2b.ipynb
+
+            base_parameters:
+
+              path: src/bronze/config/config_ds2b.json
+
+
+        # ========================================================
+        # 3. SILVER
+        # ========================================================
+
+        # --------------------------------------------------------
+        # CUSTOMERS
+        # --------------------------------------------------------
+
+        - task_key: silver_customers
+
+          depends_on:
+
+            - task_key: bronze
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/silver/notebooks/b2s_customer.ipynb
+
+            base_parameters:
+
+              path: src/silver/config/config_b2s_customers.json
+
+
+        # --------------------------------------------------------
+        # SALES ORDERS
+        # --------------------------------------------------------
+
+        - task_key: silver_sales_orders
+
+          depends_on:
+
+            - task_key: bronze
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/silver/notebooks/b2s_sales_orders.ipynb
+
+            base_parameters:
+
+              path: src/silver/config/config_b2s_sales_orders.json
+
+
+        # --------------------------------------------------------
+        # SALES
+        # --------------------------------------------------------
+
+        - task_key: silver_sales
+
+          depends_on:
+
+            - task_key: bronze
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/silver/notebooks/b2s_sales.ipynb
+
+            base_parameters:
+
+              path: src/silver/config/config_b2s_sales
+
+
+        # ========================================================
+        # 4. GOLD
+        # ========================================================
+
+        # --------------------------------------------------------
+        # DIM CUSTOMER
+        # --------------------------------------------------------
+
+        - task_key: gold_dim_customer
+
+          depends_on:
+
+            - task_key: silver_customers
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/gold/notebooks/dim_customer.ipynb
+
+            base_parameters:
+
+              path: src/gold/config/config_dim_customer.json
+
+
+        # --------------------------------------------------------
+        # DIM ORDER
+        # --------------------------------------------------------
+
+        - task_key: gold_dim_order
+
+          depends_on:
+
+            - task_key: silver_sales_orders
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/gold/notebooks/dim_order.ipynb
+
+            base_parameters:
+
+              path: src/gold/config/config_dim_order.json
+
+
+        # --------------------------------------------------------
+        # DIM PRODUCT
+        # --------------------------------------------------------
+
+        - task_key: gold_dim_product
+
+          depends_on:
+
+            - task_key: silver_sales
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/gold/notebooks/dim_product.ipynb
+
+            base_parameters:
+
+              path: src/gold/config/config_dim_product.json
+
+
+        # --------------------------------------------------------
+        # DIM DATE
+        # --------------------------------------------------------
+
+        - task_key: gold_dim_date
+
+          depends_on:
+
+            - task_key: silver_sales
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/gold/notebooks/dim_date.ipynb
+
+            base_parameters:
+
+              path: src/gold/config/config_dim_date.json
+
+
+        # --------------------------------------------------------
+        # FACT SALES
+        # --------------------------------------------------------
+
+        - task_key: gold_fact_sales
+
+          depends_on:
+
+            - task_key: silver_sales_orders
+
+            - task_key: silver_sales
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/gold/notebooks/fact_sales.ipynb
+
+            base_parameters:
+
+              path: src/gold/config/config_fact_sales.json
+
+
+        # ========================================================
+        # 5. DATA QUALITY
+        # ========================================================
+
+        - task_key: data_quality
+
+          depends_on:
+
+            - task_key: gold_dim_customer
+
+            - task_key: gold_dim_order
+
+            - task_key: gold_dim_product
+
+            - task_key: gold_dim_date
+
+            - task_key: gold_fact_sales
+
+          run_if: ALL_SUCCESS
+
+          environment_key: platform
+
+          max_retries: 1
+
+          notebook_task:
+
+            notebook_path: ../src/dq/notebooks/run_data_quality.ipynb
+
+            base_parameters:
+
+              path: src/dq/config/config_data_quality.json
+
+
+      # ============================================================
+      # 6. PERMISSIONS
+      # ============================================================
+
+      permissions:
+
+        - level: CAN_VIEW
+          group_name: users

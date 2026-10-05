@@ -1,0 +1,58 @@
+bundle:
+  name: retail-data-platform
+
+include:
+  - resources/*.yml
+
+sync:
+  include:
+    - common_utils/**
+    - src/**
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for the retail data platform.
+    default: retaildataplatform
+
+  secret_scope:
+    description: Databricks secret scope containing source credentials.
+
+  alert_email:
+    description: Mailbox notified on job failure or SLA breach.
+    default: ibhevendra@gmail.com
+
+  schedule_pause_status:
+    description: PAUSED in non-production targets so only production runs on schedule.
+    default: PAUSED
+
+  run_as_service_principal:
+    description: Service principal used by the production job.
+    default: ""
+
+targets:
+
+  dev:
+    mode: development
+    default: true
+
+    workspace:
+      host: https://dbc-5cf81efb-3cb1.cloud.databricks.com
+
+    variables:
+      secret_scope: retail-platform-devv
+
+  prod:
+    mode: production
+
+    workspace:
+      host: https://<prod-workspace-url>
+      root_path: /Workspace/.bundle/${bundle.name}/${bundle.target}
+
+    variables:
+      secret_scope: retail-platform-prod
+      schedule_pause_status: UNPAUSED
+
+    # Uncomment once the production service principal exists.
+    #
+    # run_as:
+    #   service_principal_name: ${var.run_as_service_principal}
