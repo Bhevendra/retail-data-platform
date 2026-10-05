@@ -135,10 +135,11 @@
             "scd": {
                 "type": 1,
                 "key_columns": [
-                    "customer_id",
+                    
                     "order_number",
                     "product_id",
                     "score"
+                   
                 ]
             }
         }

@@ -1,0 +1,36 @@
+{
+    "source": {
+        "source_name": "silver_customers",
+        "source_table": "retaildataplatform.silver.customers"
+    },
+
+    "target": {
+        "target_table": "retaildataplatform.gold.dim_customer"
+    },
+
+    "transform": {
+        "default_customer_type": "Unknown"
+    },
+
+    "select_columns": [
+        "customer_id",
+        "first_name",
+        "last_name",
+        "full_name",
+        "loyalty_segment",
+        "customer_type",
+        "created_date",
+        "last_updated"
+    ],
+
+    "cast_columns": {
+        "customer_id": "long",
+        "first_name": "string",
+        "last_name": "string",
+        "full_name": "string",
+        "loyalty_segment": "string",
+        "customer_type": "string",
+        "created_date": "date",
+        "last_updated": "timestamp"
+    }
+}
