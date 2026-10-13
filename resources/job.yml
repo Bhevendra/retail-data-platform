@@ -133,7 +133,7 @@ resources:
 
             base_parameters:
 
-              path: src/ingestion/config/config_sqlserver.json
+              path: ../config/config_sqlserver.json
 
 
         # --------------------------------------------------------
@@ -154,7 +154,7 @@ resources:
 
             base_parameters:
 
-              path: src/ingestion/config/config_cosmosdb.json
+              path: ../config/config_cosmosdb.json
 
 
         # --------------------------------------------------------
@@ -175,7 +175,7 @@ resources:
 
             base_parameters:
 
-              path: src/ingestion/config/config_s3.json
+              path: ../config/config_s3.json
 
 
         # ========================================================
@@ -204,7 +204,7 @@ resources:
 
             base_parameters:
 
-              path: src/bronze/config/config_ds2b.json
+              path: ../config/config_ds2b.json
 
 
         # ========================================================
@@ -233,7 +233,7 @@ resources:
 
             base_parameters:
 
-              path: src/silver/config/config_b2s_customers.json
+              path: ../config/config_b2s_customers.json
 
 
         # --------------------------------------------------------
@@ -258,7 +258,7 @@ resources:
 
             base_parameters:
 
-              path: src/silver/config/config_b2s_sales_orders.json
+              path: ../config/config_b2s_sales_orders.json
 
 
         # --------------------------------------------------------
@@ -283,7 +283,7 @@ resources:
 
             base_parameters:
 
-              path: src/silver/config/config_b2s_sales
+              path: ../config/config_b2s_sales
 
 
         # ========================================================
@@ -312,7 +312,7 @@ resources:
 
             base_parameters:
 
-              path: src/gold/config/config_dim_customer.json
+              path: ../config/config_dim_customer.json
 
 
         # --------------------------------------------------------
@@ -337,7 +337,7 @@ resources:
 
             base_parameters:
 
-              path: src/gold/config/config_dim_order.json
+              path: ../config/config_dim_order.json
 
 
         # --------------------------------------------------------
@@ -362,7 +362,7 @@ resources:
 
             base_parameters:
 
-              path: src/gold/config/config_dim_product.json
+              path: ../config/config_dim_product.json
 
 
         # --------------------------------------------------------
@@ -387,7 +387,7 @@ resources:
 
             base_parameters:
 
-              path: src/gold/config/config_dim_date.json
+              path: ../config/config_dim_date.json
 
 
         # --------------------------------------------------------
@@ -414,40 +414,8 @@ resources:
 
             base_parameters:
 
-              path: src/gold/config/config_fact_sales.json
+              path: ../config/config_fact_sales.json
 
-
-        # ========================================================
-        # 5. DATA QUALITY
-        # ========================================================
-
-        - task_key: data_quality
-
-          depends_on:
-
-            - task_key: gold_dim_customer
-
-            - task_key: gold_dim_order
-
-            - task_key: gold_dim_product
-
-            - task_key: gold_dim_date
-
-            - task_key: gold_fact_sales
-
-          run_if: ALL_SUCCESS
-
-          environment_key: platform
-
-          max_retries: 1
-
-          notebook_task:
-
-            notebook_path: ../src/dq/notebooks/run_data_quality.ipynb
-
-            base_parameters:
-
-              path: src/dq/config/config_data_quality.json
 
 
       # ============================================================

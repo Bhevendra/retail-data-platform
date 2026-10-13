@@ -16,6 +16,7 @@ variables:
 
   secret_scope:
     description: Databricks secret scope containing source credentials.
+    default: retail-platform-dev
 
   alert_email:
     description: Mailbox notified on job failure or SLA breach.
