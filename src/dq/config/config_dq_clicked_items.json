@@ -1,0 +1,11 @@
+{
+  "table": "retaildataplatform.silver.clicked_items",
+  "layer": "SILVER",
+  "checks": [
+    {"name": "clicked_items_not_empty", "type": "min_row_count", "threshold": 1, "severity": "error", "on_failure": "fail"},
+    {"name": "order_number_not_null", "type": "not_null", "column": "order_number", "severity": "error", "on_failure": "fail"},
+    {"name": "product_id_not_null", "type": "not_null", "column": "product_id", "severity": "error", "on_failure": "fail"},
+    {"name": "score_range", "type": "range", "column": "score", "min": 0, "severity": "error", "on_failure": "fail"},
+    {"name": "clicked_item_key_unique", "type": "unique", "columns": ["order_number", "product_id", "score"], "severity": "warn", "on_failure": "warn"}
+  ]
+}
