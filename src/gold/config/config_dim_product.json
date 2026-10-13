@@ -1,0 +1,30 @@
+{
+    "source": {
+        "source_name": "silver_sales",
+        "source_table": "retaildataplatform.silver.sales"
+    },
+
+    "target": {
+        "target_table": "retaildataplatform.gold.dim_product"
+    },
+
+    "transform": {
+        "generated_product_id_prefix": "PROD_",
+        "default_category": "Unknown",
+        "default_unit": "Unknown"
+    },
+
+    "select_columns": [
+        "product_id",
+        "product_name",
+        "unit",
+        "category"
+    ],
+
+    "cast_columns": {
+        "product_id": "string",
+        "product_name": "string",
+        "unit": "string",
+        "category": "string"
+    }
+}

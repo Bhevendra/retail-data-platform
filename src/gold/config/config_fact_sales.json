@@ -1,0 +1,44 @@
+{
+    "source": {
+        "source_name": "silver_sales",
+        "tables": {
+            "sales_orders": "retaildataplatform.silver.sales_orders",
+            "order_products": "retaildataplatform.silver.order_products",
+            "promotions": "retaildataplatform.silver.promotions"
+        }
+    },
+
+    "target": {
+        "target_table": "retaildataplatform.gold.fact_sales"
+    },
+
+    "transform": {
+        "order_date_key_format": "yyyyMMdd",
+        "default_discount": 0.0,
+        "default_promo_quantity": 0
+    },
+
+    "select_columns": [
+        "order_number",
+        "customer_id",
+        "product_id",
+        "order_date_key",
+        "qty",
+        "unit_price",
+        "discount",
+        "promo_quantity",
+        "total_amount"
+    ],
+
+    "cast_columns": {
+        "order_number": "long",
+        "customer_id": "long",
+        "product_id": "string",
+        "order_date_key": "int",
+        "qty": "long",
+        "unit_price": "double",
+        "discount": "double",
+        "promo_quantity": "long",
+        "total_amount": "double"
+    }
+}

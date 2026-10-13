@@ -1,0 +1,30 @@
+{
+    "source": {
+        "source_name": "silver_sales_orders",
+        "source_table": "retaildataplatform.silver.sales_orders"
+    },
+
+    "target": {
+        "target_table": "retaildataplatform.gold.dim_order"
+    },
+
+    "transform": {
+        "order_date_key_format": "yyyyMMdd"
+    },
+
+    "select_columns": [
+        "order_number",
+        "customer_id",
+        "order_timestamp",
+        "number_of_line_items",
+        "order_date_key"
+    ],
+
+    "cast_columns": {
+        "order_number": "long",
+        "customer_id": "long",
+        "order_timestamp": "timestamp",
+        "number_of_line_items": "long",
+        "order_date_key": "int"
+    }
+}
